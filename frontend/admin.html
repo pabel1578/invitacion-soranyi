@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Admin - Invitación Soranyí</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --red:#8b122d;
+      --gold:#d6ab5c;
+      --bg:#f8f1eb;
+      --text:#3d2a27;
+      --card:#ffffffee;
+      --shadow:0 14px 35px rgba(0,0,0,.12);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Montserrat",sans-serif;
+      background:linear-gradient(180deg,#fff8f2,#f6e8df);
+      color:var(--text);
+      padding:24px;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+    }
+
+    h1{
+      font-family:"Cinzel",serif;
+      color:var(--red);
+      margin-bottom:8px;
+      font-size:clamp(2rem,4vw,3rem);
+    }
+
+    .subtitle{
+      margin-bottom:24px;
+      color:#6d5550;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+      margin-bottom:24px;
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:20px;
+    }
+
+    .stat-title{
+      font-size:.9rem;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      color:#7a5f59;
+      margin-bottom:8px;
+    }
+
+    .stat-value{
+      font-size:2rem;
+      font-weight:700;
+      color:var(--red);
+    }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:1fr auto auto;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    input, button, select{
+      font-family:inherit;
+      font-size:1rem;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid #e6d2c8;
+    }
+
+    input:focus{
+      outline:none;
+      border-color:var(--gold);
+    }
+
+    button{
+      cursor:pointer;
+      border:none;
+      background:linear-gradient(135deg,#f6dfaa,#d6ab5c);
+      color:#4b2506;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:900px;
+    }
+
+    th, td{
+      padding:14px 16px;
+      border-bottom:1px solid #f0dfd8;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    th{
+      background:#fff5ee;
+      color:var(--red);
+      font-weight:700;
+      position:sticky;
+      top:0;
+    }
+
+    .yes{color:green;font-weight:700}
+    .no{color:crimson;font-weight:700}
+
+    .danger{
+      background:linear-gradient(135deg,#b61d3f,#8b122d);
+      color:#fff;
+    }
+
+    .muted{
+      color:#7b6661;
+      font-size:.95rem;
+    }
+
+    @media (max-width: 900px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .toolbar{grid-template-columns:1fr}
+    }
+
+    @media (max-width: 520px){
+      .stats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Panel Admin</h1>
+    <p class="subtitle">Confirmaciones de la invitación de Soranyí</p>
+
+    <section class="stats">
+      <div class="card">
+        <div class="stat-title">Registros</div>
+        <div class="stat-value" id="totalRecords">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Personas confirmadas</div>
+        <div class="stat-value" id="totalConfirmedPeople">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Invitados que no asistirán</div>
+        <div class="stat-value" id="totalDeclined">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-title">Sí asistiré</div>
+        <div class="stat-value" id="totalYes">0</div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <input type="text" id="searchInput" placeholder="Buscar por nombre..." />
+      <button id="refreshBtn">Actualizar</button>
+      <button id="exportBtn">Exportar CSV</button>
+    </section>
+
+    <section class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Asistencia</th>
+            <th>Cantidad</th>
+            <th>Mensaje</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+  const API_BASE = "http://localhost:3000/api";
+  let allRows = [];
+
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/rsvps/stats`);
+      const data = await res.json();
+
+      console.log("STATS:", data);
+
+      document.getElementById("totalRecords").textContent =
+        data?.stats?.total_records ?? 0;
+      document.getElementById("totalConfirmedPeople").textContent =
+        data?.stats?.total_people_confirmed ?? 0;
+      document.getElementById("totalDeclined").textContent =
+        data?.stats?.total_declined ?? 0;
+      document.getElementById("totalYes").textContent =
+        data?.stats?.total_yes_records ?? 0;
+    } catch (error) {
+      console.error("Error cargando estadísticas:", error);
+    }
+  }
+
+  async function loadRows() {
+    try {
+      const res = await fetch(`${API_BASE}/rsvps`);
+      const data = await res.json();
+
+      console.log("RSVPS:", data);
+
+      allRows = Array.isArray(data.data) ? data.data : [];
+      renderRows(allRows);
+    } catch (error) {
+      console.error("Error cargando filas:", error);
+    }
+  }
+
+  function renderRows(rows) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    if (!rows || rows.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="muted">No hay registros todavía.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    rows.forEach((row) => {
+      const tr = document.createElement("tr");
+
+      const fullName = row.full_name ?? "";
+      const phone = row.phone ?? "-";
+      const attendance = row.attendance ?? "-";
+      const guestsCount = row.guests_count ?? 1;
+      const message = row.message ?? "-";
+      const createdAt = row.created_at
+        ? new Date(row.created_at).toLocaleString()
+        : "-";
+
+      tr.innerHTML = `
+        <td>${escapeHtml(String(fullName))}</td>
+        <td>${escapeHtml(String(phone))}</td>
+        <td class="${attendance === "Sí asistiré" ? "yes" : "no"}">${escapeHtml(String(attendance))}</td>
+        <td>${escapeHtml(String(guestsCount))}</td>
+        <td>${escapeHtml(String(message))}</td>
+        <td>${escapeHtml(String(createdAt))}</td>
+        <td><button class="danger" onclick="deleteRow(${row.id})">Borrar</button></td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function deleteRow(id) {
+    const ok = confirm("¿Seguro que quieres borrar este registro?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/rsvps/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "No se pudo borrar.");
+        return;
+      }
+
+      await init();
+    } catch (error) {
+      console.error("Error borrando registro:", error);
+      alert("Error borrando registro.");
+    }
+  }
+
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function filterRows() {
+    const q = document.getElementById("searchInput").value.toLowerCase().trim();
+
+    const filtered = allRows.filter((row) =>
+      String(row.full_name ?? "").toLowerCase().includes(q)
+    );
+
+    renderRows(filtered);
+  }
+
+  async function init() {
+    await Promise.all([loadStats(), loadRows()]);
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", init);
+  document.getElementById("exportBtn").addEventListener("click", exportCSV);
+  document.getElementById("searchInput").addEventListener("input", filterRows);
+
+  function exportCSV() {
+    if (!allRows.length) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    const headers = ["Nombre", "Telefono", "Asistencia", "Cantidad", "Mensaje", "Fecha"];
+    const lines = [headers.join(",")];
+
+    allRows.forEach((row) => {
+      const values = [
+        row.full_name ?? "",
+        row.phone ?? "",
+        row.attendance ?? "",
+        row.guests_count ?? "",
+        row.message ?? "",
+        row.created_at ?? "",
+      ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
+
+      lines.push(values.join(","));
+    });
+
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "confirmaciones_soranyi.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  init();
+</script>
+</body>
+</html>

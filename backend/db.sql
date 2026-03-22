@@ -1,0 +1,1 @@
+CREATE DATABASE invitacion_soranyi;
