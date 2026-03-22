@@ -201,46 +201,78 @@
   <script>
   const SUPABASE_URL = "https://jzvtnewrjqqrbfqqgfen.supabase.co";
 const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
+
   let allRows = [];
 
-  async function loadStats() {
+  async function supabaseFetch(path, options = {}) {
+    const response = await fetch(`${SUPABASE_URL}${path}`, {
+      ...options,
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+    let data = null;
+    const text = await response.text();
+
     try {
-      const res = await fetch(`${API_BASE}/rsvps/stats`);
-      const data = await res.json();
-
-      console.log("STATS:", data);
-
-      document.getElementById("totalRecords").textContent =
-        data?.stats?.total_records ?? 0;
-      document.getElementById("totalConfirmedPeople").textContent =
-        data?.stats?.total_people_confirmed ?? 0;
-      document.getElementById("totalDeclined").textContent =
-        data?.stats?.total_declined ?? 0;
-      document.getElementById("totalYes").textContent =
-        data?.stats?.total_yes_records ?? 0;
-    } catch (error) {
-      console.error("Error cargando estadísticas:", error);
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = text;
     }
+
+    if (!response.ok) {
+      throw new Error(
+        (data && (data.message || data.error || data.msg)) ||
+        `Error ${response.status}`
+      );
+    }
+
+    return data;
   }
 
   async function loadRows() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rsvps?select=*`, {
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`
-    }
-  });
+    try {
+      const data = await supabaseFetch(
+        `/rest/v1/rsvps?select=*&order=created_at.desc`
+      );
 
-  const data = await res.json();
-  allRows = data;
-  renderRows(allRows);
-}
+      allRows = Array.isArray(data) ? data : [];
+      renderRows(allRows);
+      renderStats(allRows);
+    } catch (error) {
+      console.error("Error cargando registros:", error);
+      document.getElementById("tableBody").innerHTML = `
+        <tr>
+          <td colspan="7" class="muted">Error cargando registros: ${escapeHtml(error.message)}</td>
+        </tr>
+      `;
+    }
+  }
+
+  function renderStats(rows) {
+    const totalRecords = rows.length;
+    const yesRows = rows.filter(r => r.attendance === "Sí asistiré");
+    const noRows = rows.filter(r => r.attendance === "No podré asistir");
+
+    const totalConfirmedPeople = yesRows.reduce((acc, row) => {
+      return acc + Number(row.guests_count || 0);
+    }, 0);
+
+    document.getElementById("totalRecords").textContent = totalRecords;
+    document.getElementById("totalConfirmedPeople").textContent = totalConfirmedPeople;
+    document.getElementById("totalDeclined").textContent = noRows.length;
+    document.getElementById("totalYes").textContent = yesRows.length;
+  }
 
   function renderRows(rows) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
 
-    if (!rows || rows.length === 0) {
+    if (!rows.length) {
       tbody.innerHTML = `
         <tr>
           <td colspan="7" class="muted">No hay registros todavía.</td>
@@ -252,23 +284,18 @@ const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
     rows.forEach((row) => {
       const tr = document.createElement("tr");
 
-      const fullName = row.full_name ?? "";
-      const phone = row.phone ?? "-";
-      const attendance = row.attendance ?? "-";
-      const guestsCount = row.guests_count ?? 1;
-      const message = row.message ?? "-";
-      const createdAt = row.created_at
-        ? new Date(row.created_at).toLocaleString()
-        : "-";
-
       tr.innerHTML = `
-        <td>${escapeHtml(String(fullName))}</td>
-        <td>${escapeHtml(String(phone))}</td>
-        <td class="${attendance === "Sí asistiré" ? "yes" : "no"}">${escapeHtml(String(attendance))}</td>
-        <td>${escapeHtml(String(guestsCount))}</td>
-        <td>${escapeHtml(String(message))}</td>
-        <td>${escapeHtml(String(createdAt))}</td>
-        <td><button class="danger" onclick="deleteRow(${row.id})">Borrar</button></td>
+        <td>${escapeHtml(row.full_name || "")}</td>
+        <td>${escapeHtml(row.phone || "-")}</td>
+        <td class="${row.attendance === "Sí asistiré" ? "yes" : "no"}">
+          ${escapeHtml(row.attendance || "-")}
+        </td>
+        <td>${escapeHtml(String(row.guests_count ?? 1))}</td>
+        <td>${escapeHtml(row.message || "-")}</td>
+        <td>${row.created_at ? new Date(row.created_at).toLocaleString() : "-"}</td>
+        <td>
+          <button class="danger" onclick="deleteRow(${row.id})">Borrar</button>
+        </td>
       `;
 
       tbody.appendChild(tr);
@@ -280,49 +307,19 @@ const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
     if (!ok) return;
 
     try {
-      const res = await fetch(`${API_BASE}/rsvps/${id}`, {
+      await supabaseFetch(`/rest/v1/rsvps?id=eq.${id}`, {
         method: "DELETE",
+        headers: {
+          "Prefer": "return=representation"
+        }
       });
-      const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.error || "No se pudo borrar.");
-        return;
-      }
-
-      await init();
+      await loadRows();
     } catch (error) {
       console.error("Error borrando registro:", error);
-      alert("Error borrando registro.");
+      alert("Error al borrar: " + error.message);
     }
   }
-
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function filterRows() {
-    const q = document.getElementById("searchInput").value.toLowerCase().trim();
-
-    const filtered = allRows.filter((row) =>
-      String(row.full_name ?? "").toLowerCase().includes(q)
-    );
-
-    renderRows(filtered);
-  }
-
-  async function init() {
-    await Promise.all([loadStats(), loadRows()]);
-  }
-
-  document.getElementById("refreshBtn").addEventListener("click", init);
-  document.getElementById("exportBtn").addEventListener("click", exportCSV);
-  document.getElementById("searchInput").addEventListener("input", filterRows);
 
   function exportCSV() {
     if (!allRows.length) {
@@ -340,14 +337,14 @@ const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
         row.attendance ?? "",
         row.guests_count ?? "",
         row.message ?? "",
-        row.created_at ?? "",
-      ].map((v) => `"${String(v).replace(/"/g, '""')}"`);
+        row.created_at ?? ""
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`);
 
       lines.push(values.join(","));
     });
 
     const blob = new Blob([lines.join("\n")], {
-      type: "text/csv;charset=utf-8;",
+      type: "text/csv;charset=utf-8;"
     });
 
     const url = URL.createObjectURL(blob);
@@ -357,6 +354,35 @@ const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  function filterRows() {
+    const q = document.getElementById("searchInput").value.toLowerCase().trim();
+
+    const filtered = allRows.filter((row) =>
+      (row.full_name || "").toLowerCase().includes(q) ||
+      (row.phone || "").toLowerCase().includes(q) ||
+      (row.message || "").toLowerCase().includes(q)
+    );
+
+    renderRows(filtered);
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  async function init() {
+    await loadRows();
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", init);
+  document.getElementById("exportBtn").addEventListener("click", exportCSV);
+  document.getElementById("searchInput").addEventListener("input", filterRows);
 
   init();
 </script>
