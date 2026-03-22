@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:3000/api/rsvps";
+const SUPABASE_URL = "https://jzvtnewrjqqrbfqqgfen.supabase.co";
+const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
+
 const targetDate = new Date("May 10, 2026 17:00:00").getTime();
 
 function updateCountdown() {
@@ -85,10 +87,13 @@ rsvpForm.addEventListener("submit", async function (e) {
   formStatus.textContent = "";
 
   try {
-    const response = await fetch(API_URL, {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rsvps`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Prefer": "return=representation"
       },
       body: JSON.stringify(data)
     });
@@ -96,7 +101,8 @@ rsvpForm.addEventListener("submit", async function (e) {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.error || "No se pudo guardar la confirmación.");
+      console.error("Error Supabase:", result);
+      throw new Error(result.message || result.error || "No se pudo guardar la confirmación.");
     }
 
     formStatus.textContent = "Tu confirmación fue guardada correctamente 💖";
@@ -104,7 +110,8 @@ rsvpForm.addEventListener("submit", async function (e) {
     rsvpForm.reset();
     document.getElementById("guests").value = 1;
   } catch (error) {
-    formStatus.textContent = error.message;
+    console.error("Error guardando:", error);
+    formStatus.textContent = error.message || "Error guardando la confirmación.";
     formStatus.style.color = "crimson";
   } finally {
     submitBtn.disabled = false;

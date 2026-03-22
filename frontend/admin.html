@@ -199,7 +199,8 @@
   </div>
 
   <script>
-  const API_BASE = "http://localhost:3000/api";
+  const SUPABASE_URL = "https://jzvtnewrjqqrbfqqgfen.supabase.co";
+const SUPABASE_KEY = "sb_publishable_hz2d16pgL0on7xb4oUtO4A_QhX9TCmy";
   let allRows = [];
 
   async function loadStats() {
@@ -223,18 +224,17 @@
   }
 
   async function loadRows() {
-    try {
-      const res = await fetch(`${API_BASE}/rsvps`);
-      const data = await res.json();
-
-      console.log("RSVPS:", data);
-
-      allRows = Array.isArray(data.data) ? data.data : [];
-      renderRows(allRows);
-    } catch (error) {
-      console.error("Error cargando filas:", error);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rsvps?select=*`, {
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
     }
-  }
+  });
+
+  const data = await res.json();
+  allRows = data;
+  renderRows(allRows);
+}
 
   function renderRows(rows) {
     const tbody = document.getElementById("tableBody");
