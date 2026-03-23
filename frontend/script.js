@@ -140,20 +140,24 @@ const music = document.getElementById("bgMusic");
 const enterBtn = document.getElementById("enterBtn");
 const introOverlay = document.getElementById("introOverlay");
 
-// volumen suave
-music.volume = 0.35;
+if (music) {
+  music.volume = 0.35;
+}
 
-enterBtn.addEventListener("click", async () => {
-  try {
-    await music.play();
-  } catch (error) {
-    console.log("No se pudo iniciar la música");
-  }
+if (enterBtn && introOverlay) {
+  enterBtn.addEventListener("click", async () => {
+    try {
+      if (music) {
+        await music.play();
+      }
+    } catch (error) {
+      console.log("No se pudo iniciar la música:", error);
+    }
 
-  // efecto fade
-  introOverlay.style.opacity = "0";
+    introOverlay.classList.add("is-hidden");
 
-  setTimeout(() => {
-    introOverlay.style.display = "none";
-  }, 700);
-});
+    setTimeout(() => {
+      introOverlay.style.display = "none";
+    }, 800);
+  });
+}

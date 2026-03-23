@@ -702,3 +702,208 @@ section{
     min-height:300px;
   }
 }
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(255, 221, 170, 0.12), transparent 22%),
+    radial-gradient(circle at bottom left, rgba(255, 255, 255, 0.08), transparent 24%),
+    linear-gradient(180deg, #4c0d1b 0%, #7b122a 52%, #3a0813 100%);
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.intro-bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.intro-glow-1 {
+  width: 280px;
+  height: 280px;
+  background: rgba(255, 215, 140, 0.45);
+  top: 8%;
+  left: 10%;
+  animation: floatGlow 7s ease-in-out infinite;
+}
+
+.intro-glow-2 {
+  width: 320px;
+  height: 320px;
+  background: rgba(255, 255, 255, 0.18);
+  bottom: 8%;
+  right: 8%;
+  animation: floatGlow 9s ease-in-out infinite;
+}
+
+@keyframes floatGlow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-12px) translateX(8px);
+  }
+}
+
+.intro-card {
+  position: relative;
+  width: min(92%, 560px);
+  padding: 42px 28px;
+  text-align: center;
+  color: #fff8ef;
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 226, 176, 0.35);
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.28),
+    inset 0 1px 0 rgba(255,255,255,0.18);
+  animation: introCardIn 0.9s ease;
+}
+
+.intro-card::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 24px;
+  border: 1px solid rgba(245, 223, 171, 0.28);
+  pointer-events: none;
+}
+
+@keyframes introCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.intro-ornament {
+  font-size: 1rem;
+  letter-spacing: 8px;
+  color: #f5dfab;
+  margin-bottom: 14px;
+  opacity: 0.95;
+}
+
+.intro-blessing {
+  font-family: "Playfair Display", serif;
+  font-size: 1.05rem;
+  color: #f8e8c3;
+  margin-bottom: 10px;
+}
+
+.intro-title {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(3.6rem, 9vw, 5.7rem);
+  line-height: 1;
+  color: #fff7ee;
+  margin: 6px 0 10px;
+  text-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.intro-event {
+  font-family: "Cinzel", serif;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.95rem;
+  color: #f5dfab;
+  margin-bottom: 18px;
+}
+
+.intro-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 16px 0 20px;
+}
+
+.intro-line span {
+  width: 95px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #f5dfab, transparent);
+}
+
+.intro-line i {
+  font-style: normal;
+  color: #f5dfab;
+  font-size: 1rem;
+}
+
+.intro-text {
+  max-width: 420px;
+  margin: 0 auto 24px;
+  line-height: 1.8;
+  color: #fff2e6;
+  font-size: 0.98rem;
+}
+
+.intro-enter-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: #4b2605;
+  background: linear-gradient(135deg, #f7e3b6, #d6ab5c);
+  box-shadow: 0 10px 28px rgba(214, 171, 92, 0.28);
+  cursor: pointer;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, opacity 0.28s ease;
+}
+
+.intro-enter-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 34px rgba(214, 171, 92, 0.34);
+}
+
+.intro-enter-btn:active {
+  transform: scale(0.98);
+}
+
+.intro-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (max-width: 640px) {
+  .intro-card {
+    padding: 34px 18px;
+    border-radius: 26px;
+  }
+
+  .intro-card::before {
+    inset: 9px;
+    border-radius: 19px;
+  }
+
+  .intro-blessing {
+    font-size: 0.96rem;
+  }
+
+  .intro-event {
+    letter-spacing: 3px;
+    font-size: 0.82rem;
+  }
+
+  .intro-text {
+    font-size: 0.93rem;
+  }
+
+  .intro-line span {
+    width: 65px;
+  }
+}
