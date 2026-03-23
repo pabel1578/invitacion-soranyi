@@ -732,6 +732,46 @@ section{
   opacity: 0.8;
 }
 
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #5b0f1f, #8b122d);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.intro-card {
+  text-align: center;
+  color: white;
+  padding: 30px;
+}
+
+.intro-enter-btn {
+  margin-top: 20px;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 30px;
+  font-weight: bold;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #f7e3b6, #d6ab5c);
+  color: #4b2605;
+  cursor: pointer;
+}
+
+.btn-sub {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 3px;
+}
+
+.btn-arrow {
+  display: block;
+  font-size: 1.2rem;
+  margin-top: 4px;
+}
+
 .intro-bg-glow {
   position: absolute;
   border-radius: 50%;
