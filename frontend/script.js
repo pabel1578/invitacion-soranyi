@@ -135,3 +135,25 @@ rsvpForm.addEventListener("submit", async function (e) {
     submitBtn.textContent = "Guardar confirmación";
   }
 });
+
+const music = document.getElementById("bgMusic");
+const enterBtn = document.getElementById("enterBtn");
+const introOverlay = document.getElementById("introOverlay");
+
+// volumen suave
+music.volume = 0.35;
+
+enterBtn.addEventListener("click", async () => {
+  try {
+    await music.play();
+  } catch (error) {
+    console.log("No se pudo iniciar la música");
+  }
+
+  // efecto fade
+  introOverlay.style.opacity = "0";
+
+  setTimeout(() => {
+    introOverlay.style.display = "none";
+  }, 700);
+});
