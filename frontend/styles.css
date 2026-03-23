@@ -907,3 +907,86 @@ section{
     width: 65px;
   }
 }
+.intro-enter-btn {
+  position: relative;
+  border: none;
+  border-radius: 999px;
+  padding: 16px 34px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #4b2605;
+  background: linear-gradient(135deg, #f7e3b6, #d6ab5c);
+  box-shadow: 0 10px 30px rgba(214, 171, 92, 0.35);
+  cursor: pointer;
+  overflow: hidden;
+  animation: pulseBtn 2s infinite;
+  transition: transform 0.3s ease;
+}
+
+/* TEXTO */
+.btn-text {
+  display: block;
+}
+
+/* FLECHA */
+.btn-arrow {
+  display: block;
+  font-size: 1.3rem;
+  margin-top: 4px;
+  animation: bounceArrow 1.2s infinite;
+}
+
+/* EFECTO PULSO */
+@keyframes pulseBtn {
+  0% {
+    box-shadow: 0 0 0 0 rgba(214, 171, 92, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(214, 171, 92, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(214, 171, 92, 0);
+  }
+}
+
+/* FLECHA QUE BAJA */
+@keyframes bounceArrow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* EFECTO BRILLO */
+.intro-enter-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shine 2.5s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -60%;
+  }
+  100% {
+    left: 120%;
+  }
+}
+
+/* HOVER */
+.intro-enter-btn:hover {
+  transform: scale(1.05);
+}
