@@ -15,6 +15,23 @@ function updateCountdown() {
     return;
   }
 
+  const music = document.getElementById("bgMusic");
+
+// Intento automático (PC)
+window.addEventListener("load", () => {
+  music.volume = 0.4; // volumen suave
+  music.play().catch(() => {
+    console.log("Autoplay bloqueado");
+  });
+});
+
+// Para celular (primer toque)
+document.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+  }
+}, { once: true });
+
   const days = Math.floor(distance / (1000 * 60 * 60 * 24));
   const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
