@@ -716,6 +716,21 @@ section{
     linear-gradient(180deg, #4c0d1b 0%, #7b122a 52%, #3a0813 100%);
   transition: opacity 0.8s ease, visibility 0.8s ease;
 }
+.hero h2 {
+  color: #ffffff;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.hero p {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.btn-sub {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 2px;
+  opacity: 0.8;
+}
 
 .intro-bg-glow {
   position: absolute;
