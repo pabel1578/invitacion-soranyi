@@ -766,6 +766,25 @@ section{
   margin-top: 3px;
 }
 
+.tap-indicator {
+  font-size: 2rem;
+  margin-top: 8px;
+  margin-bottom: 10px;
+  animation: tapBounce 1.2s infinite;
+  text-align: center;
+}
+
+@keyframes tapBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.8;
+  }
+}
+
 .btn-arrow {
   display: block;
   font-size: 1.2rem;
@@ -1044,4 +1063,48 @@ section{
 /* HOVER */
 .intro-enter-btn:hover {
   transform: scale(1.05);
+}
+
+.intro-card {
+  text-align: center;
+  background: rgba(255, 250, 245, 0.92) !important;
+  border-radius: 28px;
+  padding: 40px 28px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+  border: 1px solid rgba(214, 171, 92, 0.25);
+}
+
+.intro-card h2 {
+  color: #7b122a !important;
+  font-family: "Cinzel", serif;
+  margin-bottom: 18px;
+}
+
+.intro-card p {
+  color: #3d2a27 !important;
+  line-height: 1.9;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.intro-card {
+  text-align: center;
+  background: rgba(255, 250, 245, 0.92) !important;
+  border-radius: 28px;
+  padding: 40px 28px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+  border: 1px solid rgba(214, 171, 92, 0.25);
+}
+
+.intro-card h2 {
+  color: #7b122a !important;
+  font-family: "Cinzel", serif;
+  margin-bottom: 18px;
+}
+
+.intro-card p {
+  color: #3d2a27 !important;
+  line-height: 1.9;
+  max-width: 780px;
+  margin: 0 auto;
 }
