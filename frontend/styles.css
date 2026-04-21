@@ -1042,3 +1042,16 @@ section{
     padding:28px 18px;
   }
 }
+
+.single-invite-note{
+  display:inline-block;
+  margin-bottom:18px;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.14);
+  border:1px solid rgba(245,223,171,0.35);
+  color:#fff4de;
+  font-size:0.95rem;
+  font-weight:600;
+  backdrop-filter:blur(8px);
+}
